@@ -21,7 +21,8 @@ export function Pagination ({
   currentPage = 1,
   onPageChange
 }: PaginationProps) {
-  const lastPage = Math.floor(totalCountOfRegisters / registerPerPage)
+
+  const lastPage = Math.ceil(totalCountOfRegisters / registerPerPage)
   const previousPage = currentPage > 1 ?
     generatePageArray(currentPage - 1 - siblingsCount, currentPage - 1)
     : []
@@ -32,10 +33,10 @@ export function Pagination ({
   return (
     <div className='flex items-center justify-between w-full'>
       <div className='text-sm'>
-        <strong>0</strong>
-        <strong> - 10</strong>
+        <strong>{currentPage}</strong>
+        <strong> - {registerPerPage}</strong>
         <span> de </span>
-        <strong>100</strong>
+        <strong>{totalCountOfRegisters}</strong>
       </div>
       <div className='flex gap-2 text-xs'>
         {currentPage > (1 + siblingsCount) && (
