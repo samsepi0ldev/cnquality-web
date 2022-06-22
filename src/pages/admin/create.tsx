@@ -1,10 +1,22 @@
 import { Popover, Transition } from '@headlessui/react'
 import { Fragment } from 'react'
 import { FaImage } from 'react-icons/fa'
+import { GetStaticProps } from 'next'
+
+import { api } from '../../services/api'
 import { HeaderDashboard } from '../../components/HeaderDashboard'
 
-export default function Create () {
+type CategoryProps = {
+  id: number
+  name: string
+  imageUrl: string
+}
 
+interface DashboardProps {
+  categories: CategoryProps[]
+}
+
+export default function Create ({ categories }: DashboardProps) {
   return (
     <>
       <HeaderDashboard />
@@ -53,8 +65,9 @@ export default function Create () {
                   <input className='dark:bg-zinc-800 dark:text-zinc-100 w-full h-12 px-4 rounded-md bg-zinc-200 border-2 border-transparent focus:ring-0 focus:border-brand-500 duration-200 transition-[border-color] ease-in-out' type='text' name='name' placeholder='Nome do produto' />
                   <select className=' dark:bg-zinc-800 dark:text-zinc-100 w-full h-12 px-4 rounded-md bg-zinc-200 border-2 border-transparent focus:ring-0 focus:border-brand-500 duration-200 transition-[border-color] ease-in-out' name='category_id'>
                     <option selected disabled>Escolha uma categoria</option>
+                    {categories.map(category => (<option key={category.id} value={category.id}>{category.name}</option>))}
                   </select>
-                  <label className='cursor-pointer w-full h-36 block border-2 border-dashed rounded border-brand-500 flex items-center justify-center' htmlFor='image'>
+                  <label className='cursor-pointer w-full h-36 border-2 border-dashed rounded border-brand-500 flex items-center justify-center' htmlFor='image'>
                     <span className='text-brand-500 flex items-center gap-4'>
                       <FaImage className='text-3xl' />
                       Selecione uma imagem
@@ -69,4 +82,13 @@ export default function Create () {
       </nav>
     </>
   )
+}
+
+export const getStaticProps: GetStaticProps = async () => {
+  const response = await api.get('/categories')
+  return {
+    props: {
+      categories: response.data
+    }
+  }
 }
