@@ -1,77 +1,111 @@
 import { GetStaticProps } from 'next'
 import Image from 'next/image'
-import { useState } from 'react'
+import { useCallback, useState } from 'react'
 import { FaSearch } from 'react-icons/fa'
+import Link from 'next/link'
 
 import productImg from '../../assets/product.png'
 import emptyImg from '../../assets/inbox.png'
 import { CustomLink } from '../../components/CustomLink'
 import { Pagination } from '../../components/Pagination'
+import { api } from '../../services/api'
+import { useQuery } from 'react-query'
+import { getProducts, useProducts } from '../../hooks/useProducts'
+import { queryClient } from '../../services/query-client'
+import { ProductBox } from '../../components/ProductBox'
 
-const cat = [
-  'Limpeza Geral',
-  'Linha Automotiva',
-  'Institucional',
-  'Domestica',
-  'Tratamento de Piso',
-  'Linha Pet',
-  'Álcool',
-  'Produtos Químicos'
-]
-
-const products = [
-  // {
-  //   name: 'Limpa Alumínio',
-  //   image: 'https://images.tcdn.com.br/img/img_prod/746019/limpador_multiuso_tradicional_500ml_rajja_37_1_20200127131831.jpg',
-  //   available: true,
-  //   category: 'Limpeza Geral'
-  // },
-  // {
-  //   name: 'Shampoo automotivo',
-  //   image: 'https://images.tcdn.com.br/img/img_prod/746019/limpador_multiuso_tradicional_500ml_rajja_37_1_20200127131831.jpg',
-  //   available: true,
-  //   category: 'Linha Automotiva'
-  // },
-  // {
-  //   name: 'Hipoclorito de sódio a 12%',
-  //   image: 'https://images.tcdn.com.br/img/img_prod/746019/limpador_multiuso_tradicional_500ml_rajja_37_1_20200127131831.jpg',
-  //   available: true,
-  //   category: 'Institucional'
-  // },
-  // {
-  //   name: 'Sabão líquido perolizado',
-  //   image: 'https://images.tcdn.com.br/img/img_prod/746019/limpador_multiuso_tradicional_500ml_rajja_37_1_20200127131831.jpg',
-  //   available: false,
-  //   category: 'Doméstica'
-  // }
-]
-
-function GraphCMSImageLoader({ src, width }) {
-  const relativeSrc = (src) => src.split("/").pop();
-
-  return `https://media.graphcms.com/resize=width:${width}/${relativeSrc(src)}`;
+type CategoryProps = {
+  id: number
+  name: string
+  imageUrl: string
 }
 
-export default function Products () {
+type Product = {
+  id: number
+  name: string
+  imageUrl: string
+  categoryId: number
+}
+
+interface ProductProps {
+  categories: CategoryProps[]
+}
+
+function GraphCMSImageLoader ({ src, width }) {
+  const relativeSrc = src => src.split('/').pop()
+
+  return `https://media.graphcms.com/resize=width:${width}/${relativeSrc(src)}`
+}
+
+export default function Products ({ categories }: ProductProps) {
   const [page, setPage] = useState(1)
+  const [url, setUrl] = useState(undefined)
+  const { data, isLoading, error, isFetching } = useProducts(page, url)
+
+  let time = null
+
+  async function handlePrefetchProduct (productId: number) {
+    await queryClient.prefetchQuery(
+      ['product', productId.toString()],
+      async () => {
+        const response = await api.get(`/products/${productId}`)
+        return response.data
+      },
+      {
+        staleTime: 1000 * 60 * 10
+      }
+    )
+  }
+  const handleProductsFromCategory = useCallback((id: number) => {
+    setUrl(`/products/${id}/results`)
+    setPage(1)
+  }, [])
+
+  const debounceEvent = (fn: any, wait = 1000, time = undefined) => (...args) => {
+    clearTimeout(time)
+    time = setTimeout(() => fn(...args), wait)
+  }
+  
+
+  function handleProductsByName (e: any) {
+    setUrl(`/products/results/show?name=${e.target.value}`)
+    setPage(1)
+  }
   return (
     <main>
-      <Image loading='eager' width="100%" height="25px" layout="responsive" src={productImg} alt='Imagem sobre' />
+      <Image
+        loading='eager'
+        width='100%'
+        height='25px'
+        layout='responsive'
+        src={productImg}
+        alt='Imagem sobre'
+      />
       <div className='px-32 py-8 flex gap-4'>
         <aside className='bg-green-600 w-fit p-8 rounded-xl'>
           <header className='border-b-[1px] border-zinc-50/30 pb-5'>
-            <h4 className='text-white font-medium'>Pesquisa:</h4>
+            <h4 className='text-white font-medium'>Pesquisa: {isFetching ? 'carregando' : null}</h4>
             <div className='flex items-center bg-white px-2 rounded-md mt-8'>
-              <input type='text' className='border-0 ring-0 focus:ring-0 bg-transparent' placeholder='Digite sua pesquisa...' />
+              <input
+                type='text'
+                className='border-0 ring-0 focus:ring-0 bg-transparent'
+                placeholder='Digite sua pesquisa...'
+                onKeyUp={debounceEvent(handleProductsByName, 200)}
+              />
               <FaSearch className='text-zinc-500' />
             </div>
           </header>
           <div className='mt-5'>
             <span className='font-medium text-white'>Categorias</span>
             <ul className='mt-4'>
-              {cat.map((value, i) => (
-                <li key={i} className='text-zinc-100'>
-                  <button className='font-normal text-sm hover:bg-black/10 w-full text-left py-2 px-4 rounded-lg'>{value}</button>
+              {categories.map(category => (
+                <li key={category.id} className='text-zinc-100'>
+                  <button
+                    onClick={() => handleProductsFromCategory(category.id)}
+                    className='font-normal text-sm hover:bg-black/10 w-full text-left py-2 px-4 rounded-lg'
+                  >
+                    {category.name}
+                  </button>
                 </li>
               ))}
             </ul>
@@ -79,26 +113,33 @@ export default function Products () {
         </aside>
         <section className='w-full flex flex-wrap gap-4'>
           <>
-            {products.length ? products.map((product, i) => (
-              <CustomLink key={product.name.toString()} href={`products/${i}`}>
-                <a className='flex flex-col items-center w-60 bg-white rounded-md p-6 border-[1px] border-zinc-200 hover:shadow-xl transition-shadow'>
-                  <div className='relative w-60 h-60'>
-                    <Image src={product.image} alt='Image do google' layout='fill' />
-                  </div>
-                  <span className='font-bold text-center mt-4'>{product.name}</span>
-                </a>
-              </CustomLink>
-            )) : (
-              <div className='w-full max-w-sm flex flex-col justify-center items-center my-0 mx-auto'>
-                <div className='w-32'>
-                  <Image src={emptyImg} alt='Sem produtos' />
-                </div>
-                <strong className='text-2xl text-center my-4 text-zinc-900'>Oopa! Selecione uma categoria...</strong>
-                <p className='text-center text-zinc-600'>Para visualizar alguns dos produtos selecione uma categoria do mesmo assim tera uma lista com os respectivos produtos dela!</p>
+            {isLoading ? (
+              <span className='m-auto w-8 h-8 block rounded-full border-4 border-t-green-600 border-green-600/10 animate-spin'></span>
+            ) : error ? (
+              <div className='p-4 bg-red-500 h-fit rounded text-zinc-100 self-center mx-auto shadow-md'>
+                Oops!!! Algo de errado não esta certo.
               </div>
+            ) : (
+              data.products && data.products.map(product => (
+                <Link
+                  key={product.name.toString()}
+                  href={`products/${product.id}`}
+                >
+                  <a onMouseEnter={() => handlePrefetchProduct(product.id)} className='flex'>
+                    <ProductBox data={product} />
+                  </a>
+                </Link>
+              ))
             )}
 
-            {!!products.length && (<Pagination totalCountOfRegisters={200} currentPage={page} onPageChange={setPage} />)}
+            {!isLoading && (
+              <Pagination
+                totalCountOfRegisters={data.count}
+                registerPerPage={6}
+                currentPage={page}
+                onPageChange={setPage}
+              />
+            )}
           </>
         </section>
       </div>
@@ -107,8 +148,10 @@ export default function Products () {
 }
 
 export const getStaticProps: GetStaticProps = async () => {
+  const response = await api.get('/categories')
   return {
-    props: {},
-    revalidate: 60 * 60 * 24,
+    props: {
+      categories: response.data
+    }
   }
 }
