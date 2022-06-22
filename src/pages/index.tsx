@@ -15,16 +15,16 @@ export default function Home () {
         alt='Imagem sobre'
       />
       <div className='py-8 px-40 flex flex-col items-center justify-center'>
-        <div>
+        <section>
           <h1 className='text-2xl text-green-600 font-semibold my-10'>
             Conheça nossas linhas de produtos
           </h1>
-        </div>
-        <div>
+        </section>
+        <section>
           <h1 className='text-2xl text-green-600 font-semibold my-10'>
             Conheça nossas categorias
           </h1>
-        </div>
+        </section>
         <div className='mb-20'>
           <h1 className='text-2xl text-zinc-900 my-10'>
             Siga-nos em nossas redes sociais
