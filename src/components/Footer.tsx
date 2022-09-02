@@ -11,12 +11,12 @@ export function Footer () {
   return (
     <>
       {productsList.length ? <Widget /> : null}
-      <footer className='px-40 py-4 bg-blue-600 text-zinc-100 flex items-center justify-between'>
+      <footer className='px-8 sm:px-40 py-4 bg-blue-600 text-zinc-100 flex items-center justify-between'>
         <div className='w-fit'>
-          <div className='w-40'>
+          <div className='w-24 sm:w-40'>
             <Image className='opacity-40 fill-white' src={logoTransparent} alt='CN Quality' />
           </div>
-          <div className='w-60'>
+          <div className='w-32 sm:w-60'>
             <h4>Bandeiras</h4>
             <Image loading='eager' src={cardFlag} alt='Bandeiras de cartões' />
           </div>

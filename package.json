@@ -10,12 +10,16 @@
   },
   "dependencies": {
     "@headlessui/react": "^1.6.2",
+    "@rocketseat/unform": "^1.6.2",
+    "@unform/core": "^2.1.6",
+    "@unform/web": "^2.1.6",
     "axios": "^0.27.2",
     "googleapis": "^100.0.0",
     "next": "12.1.6",
     "react": "18.1.0",
     "react-dom": "18.1.0",
     "react-icons": "^4.3.1",
+    "react-multi-carousel": "^2.8.2",
     "react-query": "^3.39.1"
   },
   "devDependencies": {

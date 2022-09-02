@@ -7,7 +7,7 @@ import logoCNQuality from '../assets/logo.png'
 export function Header () {
   return (
     <header className='w-full h-60 flex flex-col'>
-      <nav className='w-fit h-10 flex items-center px-5 text-sm font-medium'>
+      <nav className='w-fit h-10 hidden items-center px-5 text-sm font-medium sm:flex'>
         <CustomLink href='/'>
           <a className='first:ml-0 mx-5 leading-10 relative after:content[""] after:w-full after:h-1 after:block after:absolute after:bottom-0 after:rounded-t-full'>
             Inicio
@@ -29,11 +29,11 @@ export function Header () {
           </a>
         </CustomLink>
       </nav>
-      <section className='px-40 flex items-center gap-40 h-full bg-white'>
+      <section className='px-8 sm:px-40 flex items-center gap-40 h-full bg-white'>
         <div className='w-40'>
           <Image loading='eager' src={logoCNQuality} alt='CN Quality' />
         </div>
-        <div className='flex gap-14'>
+        <div className='gap-14 hidden sm:flex'>
           <div className='flex flex-col gap-6'>
             <h4 className='text-green-600 font-bold'>Empresa</h4>
             <div className='text-zinc-900 flex items-center'>

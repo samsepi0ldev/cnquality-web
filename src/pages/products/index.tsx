@@ -98,7 +98,7 @@ export default function Products ({ categories }: ProductProps) {
           <div className='mt-5'>
             <span className='font-medium text-white'>Categorias</span>
             <ul className='mt-4'>
-              {categories.map(category => (
+              {categories && categories.map(category => (
                 <li key={category.id} className='text-zinc-100'>
                   <button
                     onClick={() => handleProductsFromCategory(category.id)}

@@ -18,6 +18,11 @@ function MyApp({ Component, pageProps }) {
     )
   }
   return (
+    true ?
+    <div className='w-full h-screen flex items-center justify-center'>
+      <h1 className='font-semibold text-2xl text-zinc-900'>Site em manutenção, volte em breve.</h1>
+    </div>
+    :
     <QueryClientProvider client={queryClient}>
       <ShopListProvider>
         <Header />
